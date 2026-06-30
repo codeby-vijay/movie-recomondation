@@ -100,25 +100,25 @@ def _init_extensions(app: Flask) -> None:
 
 
 def _register_blueprints(app: Flask) -> None:
-    """Register all application blueprints.
+    """Register application blueprints (TEST MODE)."""
 
-    Args:
-        app: Flask application instance.
-    """
     from app.routes.main_routes import main_bp
-    from app.routes.auth_routes import auth_bp
-    from app.routes.movie_routes import movie_bp
-    from app.routes.recommendation_routes import recommendation_bp
-    from app.routes.admin_routes import admin_bp
-    from app.routes.api_routes import api_bp
 
+    # Register ONLY the main blueprint
     app.register_blueprint(main_bp)
-    app.register_blueprint(auth_bp, url_prefix='/auth')
-    app.register_blueprint(movie_bp, url_prefix='/movies')
-    app.register_blueprint(recommendation_bp, url_prefix='/recommend')
-    app.register_blueprint(admin_bp, url_prefix='/admin')
-    app.register_blueprint(api_bp, url_prefix='/api')
 
+    # Disabled temporarily for debugging
+    # from app.routes.auth_routes import auth_bp
+    # from app.routes.movie_routes import movie_bp
+    # from app.routes.recommendation_routes import recommendation_bp
+    # from app.routes.admin_routes import admin_bp
+    # from app.routes.api_routes import api_bp
+
+    # app.register_blueprint(auth_bp, url_prefix="/auth")
+    # app.register_blueprint(movie_bp, url_prefix="/movies")
+    # app.register_blueprint(recommendation_bp, url_prefix="/recommend")
+    # app.register_blueprint(admin_bp, url_prefix="/admin")
+    # app.register_blueprint(api_bp, url_prefix="/api")
 
 def _setup_logging(app: Flask) -> None:
     """Configure application logging.
