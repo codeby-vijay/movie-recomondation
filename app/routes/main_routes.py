@@ -38,10 +38,15 @@ def index():
         )
     except Exception as e:
         logger.error(f"Homepage error: {str(e)}")
-        return render_template('index.html', trending=[], popular=[],
-                               top_rated=[], genres=[], hero_movie=None)
-
-
+        return render_template(
+            'index.html',
+            trending=[],
+            popular=[],
+            top_rated=[],
+            genres=[],
+            hero_movie=None,
+        )
+    
 @main_bp.route('/about')
 def about():
     """Render the about page."""
