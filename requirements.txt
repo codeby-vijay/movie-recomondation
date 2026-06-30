@@ -14,8 +14,8 @@ email-validator==2.2.0
 
 # Machine Learning
 pandas==2.2.3
-numpy==2.2.6
-scikit-learn==1.6.1
+numpy==1.26.4
+scikit-learn==1.5.2
 scikit-surprise==1.1.4
 
 # Visualization
