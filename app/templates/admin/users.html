@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Manage Users - Admin - CineAI{% endblock %}
+{% block content %}
+<div class="container" style="padding-top: calc(var(--navbar-height) + 2rem);">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="section-title"><i class="bi bi-people"></i> Manage Users</h1>
+        <a href="{{ url_for('admin.dashboard') }}" class="btn-glass"><i class="bi bi-arrow-left"></i> Dashboard</a>
+    </div>
+    {% if users and users.items %}
+    <div class="table-responsive">
+        <table class="table-dark-custom">
+            <thead>
+                <tr>
+                    <th>ID</th><th>Username</th><th>Email</th><th>Admin</th><th>Joined</th><th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users.items %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td><strong>{{ user.username }}</strong></td>
+                    <td class="text-muted">{{ user.email }}</td>
+                    <td>
+                        {% if user.is_admin %}
+                        <span class="rec-score" style="background: rgba(34,197,94,0.15); color: #22c55e;">Admin</span>
+                        {% else %}
+                        <span class="text-muted">User</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-muted">{{ user.created_at.strftime('%b %d, %Y') if user.created_at else 'N/A' }}</td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <form method="POST" action="{{ url_for('admin.toggle_admin', user_id=user.id) }}">
+                                <button type="submit" class="btn-icon" title="Toggle Admin" style="width: 32px; height: 32px;">
+                                    <i class="bi bi-shield" style="font-size: 0.8rem;"></i>
+                                </button>
+                            </form>
+                            {% if not user.is_admin %}
+                            <form method="POST" action="{{ url_for('admin.delete_user', user_id=user.id) }}"
+                                  onsubmit="return confirm('Delete user {{ user.username }}?')">
+                                <button type="submit" class="btn-icon" title="Delete" style="width: 32px; height: 32px; color: var(--accent-primary);">
+                                    <i class="bi bi-trash" style="font-size: 0.8rem;"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if users.pages > 1 %}
+    <nav class="d-flex justify-content-center mt-4">
+        <ul class="pagination pagination-dark">
+            {% if users.has_prev %}<li class="page-item"><a class="page-link" href="{{ url_for('admin.users', page=users.prev_num) }}"><i class="bi bi-chevron-left"></i></a></li>{% endif %}
+            <li class="page-item active"><a class="page-link" href="#">{{ users.page }} / {{ users.pages }}</a></li>
+            {% if users.has_next %}<li class="page-item"><a class="page-link" href="{{ url_for('admin.users', page=users.next_num) }}"><i class="bi bi-chevron-right"></i></a></li>{% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    {% else %}
+    <p class="text-muted">No users found.</p>
+    {% endif %}
+</div>
+{% endblock %}

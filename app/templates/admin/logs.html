@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Logs - Admin - CineAI{% endblock %}
+{% block content %}
+<div class="container-fluid px-4" style="padding-top: calc(var(--navbar-height) + 2rem);">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="section-title"><i class="bi bi-journal-text"></i> Application Logs</h1>
+        <a href="{{ url_for('admin.dashboard') }}" class="btn-glass"><i class="bi bi-arrow-left"></i> Dashboard</a>
+    </div>
+    <div class="log-viewer">{{ log_content or 'No log entries found.' }}</div>
+</div>
+{% endblock %}

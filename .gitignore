@@ -1,0 +1,53 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Environment Variables
+.env
+
+# Instance folder
+instance/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/*.log
+
+# ML Models (large files)
+data/models/*.pkl
+data/models/*.joblib
+
+# Processed Data
+data/processed/*.csv
+data/processed/*.pkl
+
+# Charts (generated)
+app/static/images/charts/*.png
+
+# Database
+*.db
+*.sqlite
+
+# Distribution
+dist/
+build/
+*.egg-info/
+
+# Testing
+.pytest_cache/
+htmlcov/
+.coverage

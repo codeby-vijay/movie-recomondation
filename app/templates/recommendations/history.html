@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Recommendation History - CineAI{% endblock %}
+{% block content %}
+<div class="container" style="padding-top: calc(var(--navbar-height) + 2rem);">
+    <h1 class="section-title mb-4"><i class="bi bi-clock-history"></i> Recommendation History</h1>
+    {% if logs %}
+    <div class="table-responsive">
+        <table class="table-dark-custom">
+            <thead>
+                <tr>
+                    <th>Movie ID</th>
+                    <th>Algorithm</th>
+                    <th>Score</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td><a href="{{ url_for('movies.detail', movie_id=log.movie_id) }}" class="text-light">#{{ log.movie_id }}</a></td>
+                    <td><span class="rec-score">{{ log.algorithm }}</span></td>
+                    <td>{{ '%.4f' | format(log.score) }}</td>
+                    <td class="text-muted">{{ log.created_at.strftime('%b %d, %Y %H:%M') if log.created_at else 'N/A' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-clock-history" style="font-size: 4rem; color: var(--text-muted);"></i>
+        <h3 class="mt-3 text-secondary">No recommendation history</h3>
+        <p class="text-muted">Get recommendations to see your history here.</p>
+        <a href="{{ url_for('recommend.recommend') }}" class="btn-cineai mt-2"><i class="bi bi-magic"></i> Get Recommendations</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

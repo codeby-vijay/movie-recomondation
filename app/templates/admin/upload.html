@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Upload Dataset - Admin - CineAI{% endblock %}
+{% block content %}
+<div class="container" style="padding-top: calc(var(--navbar-height) + 2rem); max-width: 700px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="section-title"><i class="bi bi-upload"></i> Upload Dataset</h1>
+        <a href="{{ url_for('admin.dashboard') }}" class="btn-glass"><i class="bi bi-arrow-left"></i> Dashboard</a>
+    </div>
+
+    <div class="glass-card mb-4">
+        <form method="POST" enctype="multipart/form-data">
+            <div class="upload-area mb-3" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon"><i class="bi bi-cloud-arrow-up"></i></div>
+                <h5>Drop CSV files here or click to browse</h5>
+                <p class="text-muted">Supported: movies.csv, ratings.csv, links.csv, tags.csv</p>
+                <input type="file" id="fileInput" name="file" accept=".csv" style="display: none;"
+                       onchange="document.querySelector('.upload-area h5').textContent = this.files[0]?.name || 'Click to browse'">
+            </div>
+            <button type="submit" class="btn-cineai w-100 justify-content-center">
+                <i class="bi bi-upload"></i> Upload File
+            </button>
+        </form>
+    </div>
+
+    <!-- Existing Files -->
+    <div class="glass-card">
+        <h5 class="mb-3"><i class="bi bi-folder2-open me-2"></i>Existing Data Files</h5>
+        {% if files %}
+        <div class="table-responsive">
+            <table class="table-dark-custom">
+                <thead><tr><th>File</th><th>Size</th></tr></thead>
+                <tbody>
+                    {% for f in files %}
+                    <tr>
+                        <td><i class="bi bi-file-earmark-spreadsheet me-2 text-success"></i>{{ f.name }}</td>
+                        <td class="text-muted">{{ '%.1f' | format(f.size / 1024) }} KB</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted">No data files uploaded yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

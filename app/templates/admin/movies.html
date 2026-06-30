@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Manage Movies - Admin - CineAI{% endblock %}
+{% block content %}
+<div class="container" style="padding-top: calc(var(--navbar-height) + 2rem);">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="section-title"><i class="bi bi-film"></i> Manage Movies</h1>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('admin.add_movie') }}" class="btn-cineai"><i class="bi bi-plus-lg"></i> Add Movie</a>
+            <a href="{{ url_for('admin.dashboard') }}" class="btn-glass"><i class="bi bi-arrow-left"></i> Dashboard</a>
+        </div>
+    </div>
+    {% if movies and movies.items %}
+    <div class="table-responsive">
+        <table class="table-dark-custom">
+            <thead>
+                <tr><th>ID</th><th>Title</th><th>Genres</th><th>Year</th><th>Rating</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for movie in movies.items %}
+                <tr>
+                    <td>{{ movie.id }}</td>
+                    <td><a href="{{ url_for('movies.detail', movie_id=movie.id) }}" class="text-light"><strong>{{ movie.title[:50] }}</strong></a></td>
+                    <td class="text-muted" style="font-size: 0.8rem;">{{ movie.genres[:40] }}</td>
+                    <td>{{ movie.year }}</td>
+                    <td><span class="movie-card-rating"><i class="bi bi-star-fill"></i> {{ movie.vote_average or 'N/A' }}</span></td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <a href="{{ url_for('admin.edit_movie', movie_id=movie.id) }}" class="btn-icon" style="width: 32px; height: 32px;" title="Edit">
+                                <i class="bi bi-pencil" style="font-size: 0.8rem;"></i>
+                            </a>
+                            <form method="POST" action="{{ url_for('admin.delete_movie', movie_id=movie.id) }}"
+                                  onsubmit="return confirm('Delete this movie?')">
+                                <button type="submit" class="btn-icon" style="width: 32px; height: 32px; color: var(--accent-primary);" title="Delete">
+                                    <i class="bi bi-trash" style="font-size: 0.8rem;"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if movies.pages > 1 %}
+    <nav class="d-flex justify-content-center mt-4">
+        <ul class="pagination pagination-dark">
+            {% if movies.has_prev %}<li class="page-item"><a class="page-link" href="{{ url_for('admin.movies', page=movies.prev_num) }}"><i class="bi bi-chevron-left"></i></a></li>{% endif %}
+            <li class="page-item active"><a class="page-link" href="#">{{ movies.page }} / {{ movies.pages }}</a></li>
+            {% if movies.has_next %}<li class="page-item"><a class="page-link" href="{{ url_for('admin.movies', page=movies.next_num) }}"><i class="bi bi-chevron-right"></i></a></li>{% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    {% else %}
+    <p class="text-muted">No movies in database. Upload the MovieLens dataset first.</p>
+    {% endif %}
+</div>
+{% endblock %}

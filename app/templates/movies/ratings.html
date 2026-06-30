@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}My Ratings - CineAI{% endblock %}
+{% block content %}
+<div class="container" style="padding-top: calc(var(--navbar-height) + 2rem);">
+    <h1 class="section-title mb-4"><i class="bi bi-star-fill text-warning"></i> My Ratings</h1>
+    {% if ratings and ratings.items %}
+    {% for rating in ratings.items %}
+    <div class="rec-card">
+        <img src="{{ rating.movie.poster_url }}" alt="{{ rating.movie.title }}" class="rec-poster"
+             onerror="this.src='/static/images/no-poster.png'">
+        <div class="rec-info">
+            <a href="{{ url_for('movies.detail', movie_id=rating.movie_id) }}" class="rec-title text-light">
+                {{ rating.movie.title }}
+            </a>
+            <div class="mt-1 mb-1">
+                {% for i in range(1, 6) %}
+                <i class="bi bi-star-fill" style="color: {% if i <= rating.rating %}var(--accent-gold){% else %}var(--text-muted){% endif %}; font-size: 0.9rem;"></i>
+                {% endfor %}
+                <span class="ms-2 text-secondary">{{ rating.rating }}/5</span>
+            </div>
+            <small class="text-muted">{{ rating.timestamp.strftime('%b %d, %Y') if rating.timestamp else '' }}</small>
+        </div>
+    </div>
+    {% endfor %}
+    {% if ratings.pages > 1 %}
+    <nav class="d-flex justify-content-center mt-4">
+        <ul class="pagination pagination-dark">
+            {% if ratings.has_prev %}
+            <li class="page-item"><a class="page-link" href="{{ url_for('movies.ratings', page=ratings.prev_num) }}"><i class="bi bi-chevron-left"></i></a></li>
+            {% endif %}
+            <li class="page-item active"><a class="page-link" href="#">{{ ratings.page }}</a></li>
+            {% if ratings.has_next %}
+            <li class="page-item"><a class="page-link" href="{{ url_for('movies.ratings', page=ratings.next_num) }}"><i class="bi bi-chevron-right"></i></a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-star" style="font-size: 4rem; color: var(--text-muted);"></i>
+        <h3 class="mt-3 text-secondary">No ratings yet</h3>
+        <p class="text-muted">Rate movies to help our AI learn your preferences!</p>
+        <a href="{{ url_for('movies.browse') }}" class="btn-cineai mt-2"><i class="bi bi-grid"></i> Browse Movies</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

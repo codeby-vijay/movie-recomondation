@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Profile - {{ current_user.username }} - CineAI{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: calc(var(--navbar-height) + 2rem);">
+    <!-- Profile Header -->
+    <div class="profile-header fade-in-up">
+        <div class="profile-avatar">
+            {{ current_user.username[0].upper() }}
+        </div>
+        <div>
+            <h1 style="font-family: var(--font-display); font-weight: 800;">{{ current_user.username }}</h1>
+            <p class="text-secondary mb-1">{{ current_user.email }}</p>
+            <p class="text-muted" style="font-size: 0.85rem;">
+                <i class="bi bi-calendar3 me-1"></i>
+                Joined {{ current_user.created_at.strftime('%B %Y') if current_user.created_at else 'N/A' }}
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Profile Stats -->
+        <div class="col-lg-4 mb-4">
+            <div class="glass-card">
+                <h5 class="mb-3"><i class="bi bi-bar-chart me-2"></i>Your Stats</h5>
+                <div class="row g-3">
+                    <div class="col-4 text-center">
+                        <div class="stat-number" style="font-size: 1.5rem;">{{ ratings.total if ratings else 0 }}</div>
+                        <div class="stat-label" style="font-size: 0.7rem;">Ratings</div>
+                    </div>
+                    <div class="col-4 text-center">
+                        <div class="stat-number" style="font-size: 1.5rem;">{{ favorites.total if favorites else 0 }}</div>
+                        <div class="stat-label" style="font-size: 0.7rem;">Favorites</div>
+                    </div>
+                    <div class="col-4 text-center">
+                        <div class="stat-number" style="font-size: 1.5rem;">{{ watchlist.total if watchlist else 0 }}</div>
+                        <div class="stat-label" style="font-size: 0.7rem;">Watchlist</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Profile -->
+            <div class="glass-card mt-3">
+                <h5 class="mb-3"><i class="bi bi-pencil-square me-2"></i>Edit Profile</h5>
+                <form method="POST" action="{{ url_for('auth.profile') }}">
+                    <div class="mb-3">
+                        <label class="form-label-dark">Username</label>
+                        <input type="text" name="username" class="form-control-dark"
+                               value="{{ current_user.username }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label-dark">Email</label>
+                        <input type="email" name="email" class="form-control-dark"
+                               value="{{ current_user.email }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label-dark">Bio</label>
+                        <textarea name="bio" class="form-control-dark" rows="3"
+                                  placeholder="Tell us about yourself...">{{ current_user.bio or '' }}</textarea>
+                    </div>
+                    <button type="submit" class="btn-cineai w-100 justify-content-center">
+                        <i class="bi bi-check2"></i> Save Changes
+                    </button>
+                </form>
+            </div>
+
+            <!-- Change Password -->
+            <div class="glass-card mt-3">
+                <h5 class="mb-3"><i class="bi bi-shield-lock me-2"></i>Change Password</h5>
+                <form method="POST" action="{{ url_for('auth.change_password') }}">
+                    <div class="mb-3">
+                        <label class="form-label-dark">Current Password</label>
+                        <input type="password" name="old_password" class="form-control-dark" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label-dark">New Password</label>
+                        <input type="password" name="new_password" class="form-control-dark" required minlength="6">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label-dark">Confirm New Password</label>
+                        <input type="password" name="confirm_password" class="form-control-dark" required minlength="6">
+                    </div>
+                    <button type="submit" class="btn-glass w-100 justify-content-center">
+                        <i class="bi bi-key"></i> Update Password
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Activity -->
+        <div class="col-lg-8">
+            <!-- Recent Ratings -->
+            <div class="glass-card mb-3 fade-in-up">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0"><i class="bi bi-star me-2"></i>Recent Ratings</h5>
+                    <a href="{{ url_for('movies.ratings') }}" class="section-link">View All</a>
+                </div>
+                {% if ratings and ratings.items %}
+                {% for rating in ratings.items %}
+                <div class="rec-card">
+                    <img src="{{ rating.movie.poster_url }}" alt="{{ rating.movie.title }}" class="rec-poster"
+                         onerror="this.src='/static/images/no-poster.png'">
+                    <div class="rec-info">
+                        <a href="{{ url_for('movies.detail', movie_id=rating.movie_id) }}" class="rec-title text-light">
+                            {{ rating.movie.title }}
+                        </a>
+                        <div class="mt-1">
+                            {% for i in range(5) %}
+                            <i class="bi bi-star-fill" style="color: {% if i < rating.rating %}var(--accent-gold){% else %}var(--text-muted){% endif %}; font-size: 0.8rem;"></i>
+                            {% endfor %}
+                            <span class="text-muted ms-2" style="font-size: 0.8rem;">{{ rating.rating }}/5</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-muted">No ratings yet. Start rating movies to get personalized recommendations!</p>
+                {% endif %}
+            </div>
+
+            <!-- Search History -->
+            <div class="glass-card fade-in-up">
+                <h5 class="mb-3"><i class="bi bi-clock-history me-2"></i>Recent Searches</h5>
+                {% if search_history %}
+                <div class="d-flex flex-wrap gap-2">
+                    {% for entry in search_history %}
+                    <a href="{{ url_for('movies.search', q=entry.query) }}" class="genre-badge">
+                        {{ entry.query }}
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No search history yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

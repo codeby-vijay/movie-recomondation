@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}{{ movie.title }} - CineAI{% endblock %}
+
+{% block content %}
+<!-- Movie Backdrop -->
+<div class="movie-detail-backdrop"
+     style="background-image: url('{{ movie.backdrop_url or movie.poster_url }}');">
+    <div style="position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(13,13,26,0.5), rgba(13,13,26,0.95) 70%, var(--bg-primary) 100%);"></div>
+
+    <div class="movie-detail-content">
+        <div class="container">
+            <div class="row align-items-start">
+                <!-- Poster -->
+                <div class="col-md-4 col-lg-3 mb-4">
+                    <div class="movie-detail-poster fade-in-up">
+                        <img src="{{ movie.poster_url }}" alt="{{ movie.title }}"
+                             onerror="this.src='/static/images/no-poster.png'">
+                    </div>
+                </div>
+
+                <!-- Info -->
+                <div class="col-md-8 col-lg-9">
+                    <h1 class="movie-detail-title fade-in-up">{{ movie.title }}</h1>
+
+                    <div class="movie-detail-meta fade-in-up fade-in-up-delay-1">
+                        <span class="hero-rating">
+                            <i class="bi bi-star-fill"></i>
+                            {{ movie.vote_average or movie.average_rating or 'N/A' }}
+                        </span>
+                        {% if movie.year %}
+                        <span class="text-muted">{{ movie.year }}</span>
+                        {% endif %}
+                        {% if movie.rating_count %}
+                        <span class="text-muted">{{ movie.rating_count }} ratings</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Genres -->
+                    <div class="movie-detail-genres fade-in-up fade-in-up-delay-2">
+                        {% for genre in movie.genre_list %}
+                        <a href="{{ url_for('movies.browse', genre=genre) }}" class="genre-badge">{{ genre }}</a>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Overview -->
+                    {% if movie.overview %}
+                    <p class="movie-detail-overview fade-in-up fade-in-up-delay-3">
+                        {{ movie.overview }}
+                    </p>
+                    {% endif %}
+
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-3 flex-wrap mb-4 fade-in-up fade-in-up-delay-4">
+                        {% if current_user.is_authenticated %}
+                        <button class="btn-icon btn-favorite {% if user_status.is_favorited %}active{% endif %}"
+                                data-movie-id="{{ movie.id }}" title="Favorite" style="width: 48px; height: 48px;">
+                            <i class="bi bi-heart{% if user_status.is_favorited %}-fill{% endif %}" style="font-size: 1.2rem;"></i>
+                        </button>
+                        <button class="btn-icon btn-watchlist {% if user_status.is_in_watchlist %}active{% endif %}"
+                                data-movie-id="{{ movie.id }}" title="Watchlist" style="width: 48px; height: 48px;">
+                            <i class="bi bi-bookmark{% if user_status.is_in_watchlist %}-fill{% endif %}" style="font-size: 1.2rem;"></i>
+                        </button>
+                        {% endif %}
+
+                        {% if movie.imdb_id %}
+                        <a href="https://www.imdb.com/title/tt{{ '%07d' % (movie.imdb_id|int) if movie.imdb_id else '' }}"
+                           target="_blank" class="btn-glass">
+                            <i class="bi bi-box-arrow-up-right"></i> IMDb
+                        </a>
+                        {% endif %}
+                    </div>
+
+                    <!-- Star Rating -->
+                    {% if current_user.is_authenticated %}
+                    <div class="glass-card d-inline-block fade-in-up fade-in-up-delay-4" style="padding: 1rem 1.5rem;">
+                        <label class="form-label-dark mb-2">Your Rating</label>
+                        <div class="star-rating" data-movie-id="{{ movie.id }}">
+                            {% for i in range(10, 0, -1) %}
+                            <input type="radio" id="star{{ i }}" name="rating"
+                                   value="{{ i * 0.5 }}"
+                                   {% if user_status.user_rating == i * 0.5 %}checked{% endif %}>
+                            <label for="star{{ i }}" title="{{ i * 0.5 }} stars">
+                                {% if i % 2 == 0 %}★{% else %}★{% endif %}
+                            </label>
+                            {% endfor %}
+                        </div>
+                        {% if user_status.user_rating %}
+                        <small class="text-muted mt-1 d-block">You rated: {{ user_status.user_rating }}/5</small>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Similar Movies -->
+{% if similar_movies %}
+<div class="container-fluid px-4 mt-4">
+    <section class="movie-row">
+        <div class="section-header">
+            <h2 class="section-title"><i class="bi bi-magic me-2"></i>Similar Movies</h2>
+        </div>
+        <div class="movie-row-scroll">
+            {% for rec in similar_movies %}
+            <div class="movie-card" data-movie-id="{{ rec.movie_id }}">
+                <div class="movie-card-poster">
+                    <img src="{{ rec.poster_url or '/static/images/no-poster.png' }}"
+                         alt="{{ rec.title }}" loading="lazy"
+                         onerror="this.parentElement.innerHTML='<div class=\'no-poster\'><i class=\'bi bi-film\'></i></div>'">
+                    <div class="movie-card-overlay">
+                        <div class="movie-card-actions">
+                            <button class="btn-icon btn-favorite" data-movie-id="{{ rec.movie_id }}">
+                                <i class="bi bi-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="movie-card-info">
+                    <div class="movie-card-title">{{ rec.title }}</div>
+                    <div class="movie-card-meta">
+                        <span class="rec-score">
+                            <i class="bi bi-cpu"></i> {{ '%.0f' | format(rec.score * 100) }}% match
+                        </span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endif %}
+{% endblock %}

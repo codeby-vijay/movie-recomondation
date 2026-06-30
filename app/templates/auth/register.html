@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Register - CineAI{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card fade-in-up">
+        <h1 class="auth-title">Join CineAI</h1>
+        <p class="auth-subtitle">Create your free account and start discovering movies</p>
+
+        <form method="POST" action="{{ url_for('auth.register') }}">
+            <div class="mb-3">
+                <label for="username" class="form-label-dark">Username</label>
+                <input type="text" id="username" name="username" class="form-control-dark"
+                       placeholder="Choose a username" required minlength="3" autofocus>
+            </div>
+            <div class="mb-3">
+                <label for="email" class="form-label-dark">Email</label>
+                <input type="email" id="email" name="email" class="form-control-dark"
+                       placeholder="Enter your email" required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label-dark">Password</label>
+                <input type="password" id="password" name="password" class="form-control-dark"
+                       placeholder="Create a password (min 6 chars)" required minlength="6">
+            </div>
+            <div class="mb-4">
+                <label for="confirm_password" class="form-label-dark">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" class="form-control-dark"
+                       placeholder="Confirm your password" required minlength="6">
+            </div>
+            <button type="submit" class="btn-cineai w-100 justify-content-center mb-3">
+                <i class="bi bi-person-plus"></i> Create Account
+            </button>
+        </form>
+
+        <p class="text-center text-secondary" style="font-size: 0.85rem;">
+            Already have an account?
+            <a href="{{ url_for('auth.login') }}">Sign in</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}{% if movie %}Edit Movie{% else %}Add Movie{% endif %} - Admin - CineAI{% endblock %}
+{% block content %}
+<div class="container" style="padding-top: calc(var(--navbar-height) + 2rem); max-width: 700px;">
+    <h1 class="section-title mb-4">
+        <i class="bi bi-{% if movie %}pencil-square{% else %}plus-circle{% endif %}"></i>
+        {% if movie %}Edit Movie{% else %}Add New Movie{% endif %}
+    </h1>
+    <div class="glass-card">
+        <form method="POST">
+            <div class="mb-3">
+                <label class="form-label-dark">Title *</label>
+                <input type="text" name="title" class="form-control-dark" required
+                       value="{{ movie.title if movie else '' }}" placeholder="Movie title">
+            </div>
+            <div class="mb-3">
+                <label class="form-label-dark">Genres (pipe-separated)</label>
+                <input type="text" name="genres" class="form-control-dark"
+                       value="{{ movie.genres if movie else '' }}" placeholder="Action|Drama|Thriller">
+            </div>
+            <div class="mb-3">
+                <label class="form-label-dark">Year</label>
+                <input type="number" name="year" class="form-control-dark"
+                       value="{{ movie.year if movie else '' }}" placeholder="2024" min="1900" max="2030">
+            </div>
+            <div class="mb-4">
+                <label class="form-label-dark">Overview</label>
+                <textarea name="overview" class="form-control-dark" rows="4"
+                          placeholder="Movie description...">{{ movie.overview if movie else '' }}</textarea>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn-cineai">
+                    <i class="bi bi-check2"></i> {% if movie %}Save Changes{% else %}Add Movie{% endif %}
+                </button>
+                <a href="{{ url_for('admin.movies') }}" class="btn-glass"><i class="bi bi-x"></i> Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

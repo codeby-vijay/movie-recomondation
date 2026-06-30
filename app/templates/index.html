@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+{% block title %}CineAI - Discover Your Next Favorite Movie{% endblock %}
+
+{% block content %}
+<!-- Hero Banner -->
+<section class="hero-banner">
+    {% if hero_movie and hero_movie.backdrop_url %}
+    <div class="hero-backdrop" style="background-image: url('{{ hero_movie.backdrop_url }}');"></div>
+    {% else %}
+    <div class="hero-backdrop" style="background: linear-gradient(135deg, #0d0d1a 0%, #1a1a3e 50%, #0d0d1a 100%);"></div>
+    {% endif %}
+    <div class="hero-content">
+        {% if hero_movie %}
+        <h1 class="hero-title fade-in-up">{{ hero_movie.title }}</h1>
+        <div class="hero-meta fade-in-up fade-in-up-delay-1">
+            <span class="hero-rating">
+                <i class="bi bi-star-fill"></i> {{ hero_movie.vote_average or 'N/A' }}
+            </span>
+            <span style="color: var(--text-muted);">{{ hero_movie.year }}</span>
+            {% for genre in hero_movie.genre_list[:3] %}
+            <span class="hero-genre">{{ genre }}</span>
+            {% endfor %}
+        </div>
+        <p class="hero-overview fade-in-up fade-in-up-delay-2">
+            {{ hero_movie.overview or 'Explore thousands of movies and get AI-powered recommendations tailored to your taste.' }}
+        </p>
+        <div class="fade-in-up fade-in-up-delay-3">
+            <a href="{{ url_for('movies.detail', movie_id=hero_movie.id) }}" class="btn-cineai me-2">
+                <i class="bi bi-play-fill"></i> More Info
+            </a>
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('recommend.recommend') }}" class="btn-glass">
+                <i class="bi bi-magic"></i> Get Recommendations
+            </a>
+            {% else %}
+            <a href="{{ url_for('auth.register') }}" class="btn-glass">
+                <i class="bi bi-person-plus"></i> Join Free
+            </a>
+            {% endif %}
+        </div>
+        {% else %}
+        <h1 class="hero-title fade-in-up">Discover Your Next Favorite Movie</h1>
+        <p class="hero-overview fade-in-up fade-in-up-delay-1">
+            AI-powered recommendations tailored to your taste.
+            Rate movies, build your watchlist, and let our intelligent
+            algorithms find the perfect film for you.
+        </p>
+        <div class="fade-in-up fade-in-up-delay-2">
+            <a href="{{ url_for('movies.browse') }}" class="btn-cineai me-2">
+                <i class="bi bi-grid"></i> Browse Movies
+            </a>
+            {% if not current_user.is_authenticated %}
+            <a href="{{ url_for('auth.register') }}" class="btn-glass">
+                <i class="bi bi-person-plus"></i> Sign Up Free
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Mobile Search -->
+<div class="container d-lg-none my-3">
+    <div class="search-container w-100">
+        <i class="bi bi-search search-icon"></i>
+        <input type="text" class="search-input w-100" placeholder="Search movies..."
+               onkeydown="if(event.key==='Enter')window.location.href='/movies/search?q='+this.value">
+    </div>
+</div>
+
+<div class="container-fluid px-4">
+    <!-- Trending Movies -->
+    {% if trending %}
+    <section class="movie-row animate-on-scroll">
+        <div class="section-header">
+            <h2 class="section-title"><i class="bi bi-fire text-danger"></i> Trending Now</h2>
+            <a href="{{ url_for('movies.browse') }}" class="section-link">See All <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="movie-row-scroll">
+            {% for movie in trending %}
+            <div class="movie-card" data-movie-id="{{ movie.id }}">
+                <div class="movie-card-poster">
+                    <img src="{{ movie.poster_url }}" alt="{{ movie.title }}" loading="lazy"
+                         onerror="this.parentElement.innerHTML='<div class=\'no-poster\'><i class=\'bi bi-film\'></i></div>'">
+                    <div class="movie-card-overlay">
+                        <div class="movie-card-actions">
+                            <button class="btn-icon btn-favorite" data-movie-id="{{ movie.id }}" title="Favorite">
+                                <i class="bi bi-heart"></i>
+                            </button>
+                            <button class="btn-icon btn-watchlist" data-movie-id="{{ movie.id }}" title="Watchlist">
+                                <i class="bi bi-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                    {% if loop.index <= 3 %}
+                    <span class="movie-card-badge">#{{ loop.index }}</span>
+                    {% endif %}
+                </div>
+                <div class="movie-card-info">
+                    <div class="movie-card-title">{{ movie.title }}</div>
+                    <div class="movie-card-meta">
+                        <span class="movie-card-rating">
+                            <i class="bi bi-star-fill"></i> {{ movie.vote_average or 'N/A' }}
+                        </span>
+                        <span class="movie-card-year">{{ movie.year }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Popular Movies -->
+    {% if popular %}
+    <section class="movie-row animate-on-scroll">
+        <div class="section-header">
+            <h2 class="section-title"><i class="bi bi-trophy text-warning"></i> Most Popular</h2>
+            <a href="{{ url_for('movies.browse') }}" class="section-link">See All <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="movie-row-scroll">
+            {% for movie in popular %}
+            <div class="movie-card" data-movie-id="{{ movie.id }}">
+                <div class="movie-card-poster">
+                    <img src="{{ movie.poster_url }}" alt="{{ movie.title }}" loading="lazy"
+                         onerror="this.parentElement.innerHTML='<div class=\'no-poster\'><i class=\'bi bi-film\'></i></div>'">
+                    <div class="movie-card-overlay">
+                        <div class="movie-card-actions">
+                            <button class="btn-icon btn-favorite" data-movie-id="{{ movie.id }}" title="Favorite">
+                                <i class="bi bi-heart"></i>
+                            </button>
+                            <button class="btn-icon btn-watchlist" data-movie-id="{{ movie.id }}" title="Watchlist">
+                                <i class="bi bi-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="movie-card-info">
+                    <div class="movie-card-title">{{ movie.title }}</div>
+                    <div class="movie-card-meta">
+                        <span class="movie-card-rating">
+                            <i class="bi bi-star-fill"></i> {{ movie.vote_average or 'N/A' }}
+                        </span>
+                        <span class="movie-card-year">{{ movie.year }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Top Rated -->
+    {% if top_rated %}
+    <section class="movie-row animate-on-scroll">
+        <div class="section-header">
+            <h2 class="section-title"><i class="bi bi-star text-info"></i> Top Rated</h2>
+            <a href="{{ url_for('movies.browse') }}" class="section-link">See All <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="movie-row-scroll">
+            {% for movie in top_rated %}
+            <div class="movie-card" data-movie-id="{{ movie.id }}">
+                <div class="movie-card-poster">
+                    <img src="{{ movie.poster_url }}" alt="{{ movie.title }}" loading="lazy"
+                         onerror="this.parentElement.innerHTML='<div class=\'no-poster\'><i class=\'bi bi-film\'></i></div>'">
+                    <div class="movie-card-overlay">
+                        <div class="movie-card-actions">
+                            <button class="btn-icon btn-favorite" data-movie-id="{{ movie.id }}" title="Favorite">
+                                <i class="bi bi-heart"></i>
+                            </button>
+                            <button class="btn-icon btn-watchlist" data-movie-id="{{ movie.id }}" title="Watchlist">
+                                <i class="bi bi-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="movie-card-info">
+                    <div class="movie-card-title">{{ movie.title }}</div>
+                    <div class="movie-card-meta">
+                        <span class="movie-card-rating">
+                            <i class="bi bi-star-fill"></i> {{ movie.average_rating or movie.vote_average or 'N/A' }}
+                        </span>
+                        <span class="movie-card-year">{{ movie.year }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Browse by Genre -->
+    {% if genres %}
+    <section class="py-4 animate-on-scroll">
+        <div class="section-header">
+            <h2 class="section-title"><i class="bi bi-tags"></i> Browse by Genre</h2>
+        </div>
+        <div class="genre-filters">
+            {% for genre in genres %}
+            <a href="{{ url_for('movies.browse', genre=genre) }}" class="genre-filter-btn">{{ genre }}</a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- CTA Section -->
+    {% if not current_user.is_authenticated %}
+    <section class="py-5 text-center animate-on-scroll">
+        <div class="glass-card mx-auto" style="max-width: 700px;">
+            <h2 style="font-family: var(--font-display); font-weight: 800; margin-bottom: 1rem;">
+                Get Personalized Recommendations
+            </h2>
+            <p class="text-secondary mb-4">
+                Create a free account, rate your favorite movies, and our AI will learn
+                your preferences to recommend films you'll love.
+            </p>
+            <a href="{{ url_for('auth.register') }}" class="btn-cineai">
+                <i class="bi bi-rocket-takeoff"></i> Get Started Free
+            </a>
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

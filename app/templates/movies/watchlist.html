@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}My Watchlist - CineAI{% endblock %}
+{% block content %}
+<div class="container" style="padding-top: calc(var(--navbar-height) + 2rem);">
+    <h1 class="section-title mb-4"><i class="bi bi-bookmark-fill"></i> My Watchlist</h1>
+    {% if watchlist and watchlist.items %}
+    <div class="movie-grid">
+        {% for item in watchlist.items %}
+        <div class="movie-card" data-movie-id="{{ item.movie_id }}">
+            <div class="movie-card-poster">
+                <img src="{{ item.movie.poster_url }}" alt="{{ item.movie.title }}" loading="lazy"
+                     onerror="this.parentElement.innerHTML='<div class=\'no-poster\'><i class=\'bi bi-film\'></i></div>'">
+                <div class="movie-card-overlay">
+                    <div class="movie-card-actions">
+                        <button class="btn-icon btn-watchlist active" data-movie-id="{{ item.movie_id }}">
+                            <i class="bi bi-bookmark-fill"></i>
+                        </button>
+                    </div>
+                </div>
+                {% if item.watched %}
+                <span class="movie-card-badge" style="background: #22c55e;">Watched</span>
+                {% endif %}
+            </div>
+            <div class="movie-card-info">
+                <div class="movie-card-title">{{ item.movie.title }}</div>
+                <div class="movie-card-meta">
+                    <span class="movie-card-rating"><i class="bi bi-star-fill"></i> {{ item.movie.vote_average or 'N/A' }}</span>
+                    <span class="movie-card-year">{{ item.movie.year }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% if watchlist.pages > 1 %}
+    <nav class="d-flex justify-content-center mt-4">
+        <ul class="pagination pagination-dark">
+            {% if watchlist.has_prev %}
+            <li class="page-item"><a class="page-link" href="{{ url_for('movies.watchlist', page=watchlist.prev_num) }}"><i class="bi bi-chevron-left"></i></a></li>
+            {% endif %}
+            <li class="page-item active"><a class="page-link" href="#">{{ watchlist.page }}</a></li>
+            {% if watchlist.has_next %}
+            <li class="page-item"><a class="page-link" href="{{ url_for('movies.watchlist', page=watchlist.next_num) }}"><i class="bi bi-chevron-right"></i></a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-bookmark" style="font-size: 4rem; color: var(--text-muted);"></i>
+        <h3 class="mt-3 text-secondary">Watchlist is empty</h3>
+        <p class="text-muted">Save movies to watch later by clicking the bookmark icon.</p>
+        <a href="{{ url_for('movies.browse') }}" class="btn-cineai mt-2"><i class="bi bi-grid"></i> Browse Movies</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

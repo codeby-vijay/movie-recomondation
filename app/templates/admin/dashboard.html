@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard - CineAI{% endblock %}
+{% block content %}
+<div class="container-fluid px-4" style="padding-top: calc(var(--navbar-height) + 2rem);">
+    <h1 class="section-title mb-4"><i class="bi bi-speedometer2"></i> Admin Dashboard</h1>
+
+    <!-- Stats Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.total_movies | default(0) }}</div>
+                <div class="stat-label">Movies</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.total_users | default(0) }}</div>
+                <div class="stat-label">Users</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.total_ratings | default(0) }}</div>
+                <div class="stat-label">Ratings</div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.total_recommendations | default(0) }}</div>
+                <div class="stat-label">Recs Given</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <!-- Quick Actions -->
+        <div class="col-lg-6 mb-3">
+            <div class="glass-card h-100">
+                <h5 class="mb-3"><i class="bi bi-lightning me-2"></i>Quick Actions</h5>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ url_for('admin.users') }}" class="btn-glass"><i class="bi bi-people"></i> Manage Users</a>
+                    <a href="{{ url_for('admin.movies') }}" class="btn-glass"><i class="bi bi-film"></i> Manage Movies</a>
+                    <a href="{{ url_for('admin.models') }}" class="btn-glass"><i class="bi bi-cpu"></i> ML Models</a>
+                    <a href="{{ url_for('admin.upload_dataset') }}" class="btn-glass"><i class="bi bi-upload"></i> Upload Data</a>
+                    <a href="{{ url_for('admin.statistics') }}" class="btn-glass"><i class="bi bi-graph-up"></i> Statistics</a>
+                    <a href="{{ url_for('admin.logs') }}" class="btn-glass"><i class="bi bi-journal-text"></i> View Logs</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Status -->
+        <div class="col-lg-6 mb-3">
+            <div class="glass-card h-100">
+                <h5 class="mb-3"><i class="bi bi-cpu me-2"></i>Model Evaluation</h5>
+                {% if eval_summary and eval_summary.results %}
+                <div class="table-responsive">
+                    <table class="table-dark-custom">
+                        <thead>
+                            <tr><th>Model</th><th>RMSE</th><th>MAE</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for model, metrics in eval_summary.results.items() %}
+                            <tr>
+                                <td><span class="rec-score">{{ model | upper }}</span></td>
+                                <td>{{ metrics.get('rmse', 'N/A') }}</td>
+                                <td>{{ metrics.get('mae', 'N/A') }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">No model evaluation data. Train the models first.</p>
+                <a href="{{ url_for('admin.models') }}" class="btn-glass"><i class="bi bi-play"></i> Train Models</a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Genres -->
+        <div class="col-lg-6 mb-3">
+            <div class="glass-card">
+                <h5 class="mb-3"><i class="bi bi-tags me-2"></i>Genres</h5>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for genre in stats.genres[:20] %}
+                    <span class="genre-badge">{{ genre }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Rating Distribution -->
+        <div class="col-lg-6 mb-3">
+            <div class="glass-card">
+                <h5 class="mb-3"><i class="bi bi-bar-chart me-2"></i>Rating Distribution</h5>
+                {% if stats.rating_distribution %}
+                <div class="d-flex gap-2 align-items-end" style="height: 100px;">
+                    {% for rating, count in stats.rating_distribution.items() %}
+                    {% set max_count = stats.rating_distribution.values() | max %}
+                    <div class="text-center flex-fill">
+                        <div style="height: {{ (count / max_count * 80) | int }}px; background: var(--accent-gradient); border-radius: 4px 4px 0 0;" title="{{ count }} ratings"></div>
+                        <small class="text-muted d-block mt-1" style="font-size: 0.7rem;">{{ rating }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No rating data available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

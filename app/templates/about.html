@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}About - CineAI{% endblock %}
+{% block content %}
+<div class="container" style="padding-top: calc(var(--navbar-height) + 2rem);">
+    <section class="about-hero">
+        <h1>About <span style="background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">CineAI</span></h1>
+        <p class="text-secondary" style="max-width: 600px; margin: 0 auto;">
+            An AI-powered movie recommendation system built with Machine Learning, Flask, and the MovieLens dataset.
+        </p>
+    </section>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="glass-card feature-card h-100">
+                <div class="feature-icon">🎯</div>
+                <h3>Content-Based Filtering</h3>
+                <p>Uses TF-IDF vectorization and cosine similarity to recommend movies based on genres, tags, and metadata similarity.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card feature-card h-100">
+                <div class="feature-icon">👥</div>
+                <h3>Collaborative Filtering</h3>
+                <p>Leverages KNNBasic and SVD algorithms from the Surprise library to find patterns in user behavior and predict ratings.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card feature-card h-100">
+                <div class="feature-icon">🔀</div>
+                <h3>Hybrid Approach</h3>
+                <p>Combines content-based and collaborative filtering with weighted scoring for the most accurate recommendations.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="glass-card h-100">
+                <h3 class="mb-3"><i class="bi bi-stack me-2"></i>Tech Stack</h3>
+                <div class="d-flex flex-wrap gap-2">
+                    {% for tech in ['Python 3.12+', 'Flask', 'SQLAlchemy', 'SQLite', 'scikit-learn', 'Surprise', 'Pandas', 'NumPy', 'Matplotlib', 'Bootstrap 5', 'JavaScript', 'HTML5', 'CSS3'] %}
+                    <span class="genre-badge">{{ tech }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="glass-card h-100">
+                <h3 class="mb-3"><i class="bi bi-database me-2"></i>Dataset</h3>
+                <p class="text-secondary">Built on the <strong>MovieLens Latest Small</strong> dataset by GroupLens Research, containing:</p>
+                <ul class="text-secondary">
+                    <li>~9,700 movies</li>
+                    <li>~100,000 ratings</li>
+                    <li>~3,600 tag applications</li>
+                    <li>610 users</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-card mb-5">
+        <h3 class="mb-3"><i class="bi bi-gear me-2"></i>ML Pipeline</h3>
+        <div class="row text-center">
+            <div class="col-md-2 col-4 mb-3">
+                <div class="feature-icon">📊</div>
+                <small class="text-secondary d-block">Data Loading</small>
+            </div>
+            <div class="col-md-2 col-4 mb-3">
+                <div class="feature-icon">🧹</div>
+                <small class="text-secondary d-block">Cleaning</small>
+            </div>
+            <div class="col-md-2 col-4 mb-3">
+                <div class="feature-icon">⚙️</div>
+                <small class="text-secondary d-block">Features</small>
+            </div>
+            <div class="col-md-2 col-4 mb-3">
+                <div class="feature-icon">🧠</div>
+                <small class="text-secondary d-block">Training</small>
+            </div>
+            <div class="col-md-2 col-4 mb-3">
+                <div class="feature-icon">📈</div>
+                <small class="text-secondary d-block">Evaluation</small>
+            </div>
+            <div class="col-md-2 col-4 mb-3">
+                <div class="feature-icon">🎬</div>
+                <small class="text-secondary d-block">Predictions</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
