@@ -51,3 +51,9 @@ def index():
 def about():
     """Render the about page."""
     return render_template('about.html')
+
+
+@main_bp.route("/count")
+def count():
+    from app.models.movie import Movie
+    return str(Movie.query.count())
