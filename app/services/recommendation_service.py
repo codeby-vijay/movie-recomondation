@@ -42,9 +42,11 @@ def ensure_models_downloaded() -> None:
 
     Downloads to a temp file first and only moves it into place on
     success, so a network hiccup mid-download can't leave a corrupted
-    file behind that silently blocks all future loads.
+    file behind that silently blocks all future loads. Uses streaming
+    downloads with retries since large files can be flaky over a
+    single unbuffered urllib request.
     """
-    import urllib.request
+    import requests
 
     for local_path, url in MODEL_URLS.items():
         if os.path.exists(local_path):
@@ -53,15 +55,31 @@ def ensure_models_downloaded() -> None:
         os.makedirs(os.path.dirname(local_path), exist_ok=True)
         tmp_path = local_path + '.part'
 
-        try:
-            logger.info(f"Downloading model file: {local_path}")
-            urllib.request.urlretrieve(url, tmp_path)
-            os.replace(tmp_path, local_path)
-            logger.info(f"Downloaded: {local_path}")
-        except Exception as e:
-            logger.error(f"Failed to download {local_path} from {url}: {str(e)}")
-            if os.path.exists(tmp_path):
-                os.remove(tmp_path)
+        max_attempts = 3
+        for attempt in range(1, max_attempts + 1):
+            try:
+                logger.info(
+                    f"Downloading model file: {local_path} "
+                    f"(attempt {attempt}/{max_attempts})"
+                )
+                with requests.get(url, stream=True, timeout=120) as resp:
+                    resp.raise_for_status()
+                    with open(tmp_path, 'wb') as f:
+                        for chunk in resp.iter_content(chunk_size=8 * 1024 * 1024):
+                            if chunk:
+                                f.write(chunk)
+
+                os.replace(tmp_path, local_path)
+                logger.info(f"Downloaded: {local_path}")
+                break
+
+            except Exception as e:
+                logger.error(
+                    f"Failed to download {local_path} from {url} "
+                    f"(attempt {attempt}/{max_attempts}): {str(e)}"
+                )
+                if os.path.exists(tmp_path):
+                    os.remove(tmp_path)
 
 
 class RecommendationService:
