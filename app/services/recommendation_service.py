@@ -25,6 +25,36 @@ from ml.visualization import ChartGenerator
 
 logger = logging.getLogger(__name__)
 
+MODEL_URLS = {
+    'data/models/content_based_model.pkl':
+        'https://github.com/codeby-vijay/movie-recomondation/releases/download/models-v1/content_based_model.pkl',
+    'data/models/collaborative_models.pkl':
+        'https://github.com/codeby-vijay/movie-recomondation/releases/download/models-v1/collaborative_models.pkl',
+}
+
+
+def ensure_models_downloaded() -> None:
+    """Download trained model files if they aren't already on disk.
+
+    Railway's filesystem doesn't have these files checked into git
+    (they're too large for GitHub's 100MB per-file limit), so on first
+    boot we pull them from a GitHub Release instead.
+    """
+    import urllib.request
+
+    for local_path, url in MODEL_URLS.items():
+        if os.path.exists(local_path):
+            continue
+
+        os.makedirs(os.path.dirname(local_path), exist_ok=True)
+
+        try:
+            logger.info(f"Downloading model file: {local_path}")
+            urllib.request.urlretrieve(url, local_path)
+            logger.info(f"Downloaded: {local_path}")
+        except Exception as e:
+            logger.error(f"Failed to download {local_path} from {url}: {str(e)}")
+
 
 class RecommendationService:
     """Service orchestrating the recommendation pipeline.
@@ -85,6 +115,8 @@ class RecommendationService:
             return False
 
         self._init_attempted = True
+
+        ensure_models_downloaded()
 
         try:
             # Try loading processed data first
