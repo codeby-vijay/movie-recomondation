@@ -7,7 +7,7 @@ Includes cross-validation with RMSE, MAE, Precision, Recall evaluation.
 
 import os
 import logging
-import pickle
+import joblib
 from typing import Optional
 
 import pandas as pd
@@ -315,13 +315,12 @@ class CollaborativeRecommender:
         """
         os.makedirs(model_path, exist_ok=True)
         filepath = os.path.join(model_path, 'collaborative_models.pkl')
-        with open(filepath, 'wb') as f:
-            pickle.dump({
-                'knn_model': self.knn_model,
-                'svd_model': self.svd_model,
-                'is_fitted': self._is_fitted,
-                'evaluation_results': self.evaluation_results,
-            }, f)
+        joblib.dump({
+            'knn_model': self.knn_model,
+            'svd_model': self.svd_model,
+            'is_fitted': self._is_fitted,
+            'evaluation_results': self.evaluation_results,
+        }, filepath, compress=3)
         logger.info(f"Collaborative models saved to {filepath}")
 
     def load(self, model_path: str, ratings_df: pd.DataFrame,
@@ -342,8 +341,7 @@ class CollaborativeRecommender:
             return False
 
         try:
-            with open(filepath, 'rb') as f:
-                data = pickle.load(f)
+            data = joblib.load(filepath)
 
             self.knn_model = data['knn_model']
             self.svd_model = data['svd_model']
