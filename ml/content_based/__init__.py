@@ -6,7 +6,7 @@ Phase 3: Uses TF-IDF and Cosine Similarity for content-based filtering.
 
 import os
 import logging
-import pickle
+import joblib
 from typing import Optional
 
 import numpy as np
@@ -171,12 +171,11 @@ class ContentBasedRecommender:
         """
         os.makedirs(model_path, exist_ok=True)
         filepath = os.path.join(model_path, 'content_based_model.pkl')
-        with open(filepath, 'wb') as f:
-            pickle.dump({
-                'cosine_sim': self.cosine_sim,
-                'movie_indices': self.movie_indices,
-                'is_fitted': self._is_fitted,
-            }, f)
+        joblib.dump({
+            'cosine_sim': self.cosine_sim,
+            'movie_indices': self.movie_indices,
+            'is_fitted': self._is_fitted,
+        }, filepath, compress=3)
         logger.info(f"Content-based model saved to {filepath}")
 
     def load(self, model_path: str, movies_df: pd.DataFrame,
@@ -197,8 +196,7 @@ class ContentBasedRecommender:
             return False
 
         try:
-            with open(filepath, 'rb') as f:
-                data = pickle.load(f)
+            data = joblib.load(filepath)
 
             self.cosine_sim = data['cosine_sim']
             self.movie_indices = data['movie_indices']
