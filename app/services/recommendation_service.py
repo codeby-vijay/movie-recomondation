@@ -39,6 +39,10 @@ def ensure_models_downloaded() -> None:
     Railway's filesystem doesn't have these files checked into git
     (they're too large for GitHub's 100MB per-file limit), so on first
     boot we pull them from a GitHub Release instead.
+
+    Downloads to a temp file first and only moves it into place on
+    success, so a network hiccup mid-download can't leave a corrupted
+    file behind that silently blocks all future loads.
     """
     import urllib.request
 
@@ -47,13 +51,17 @@ def ensure_models_downloaded() -> None:
             continue
 
         os.makedirs(os.path.dirname(local_path), exist_ok=True)
+        tmp_path = local_path + '.part'
 
         try:
             logger.info(f"Downloading model file: {local_path}")
-            urllib.request.urlretrieve(url, local_path)
+            urllib.request.urlretrieve(url, tmp_path)
+            os.replace(tmp_path, local_path)
             logger.info(f"Downloaded: {local_path}")
         except Exception as e:
             logger.error(f"Failed to download {local_path} from {url}: {str(e)}")
+            if os.path.exists(tmp_path):
+                os.remove(tmp_path)
 
 
 class RecommendationService:
