@@ -64,7 +64,13 @@ class RecommendationService:
         return cls._instance
 
     def initialize(self) -> bool:
-        """Initialize the service by loading or training models.
+        """Initialize the service by loading models.
+
+        This no longer trains models automatically. Training is expensive
+        (memory/CPU) and should only happen via an explicit, deliberate
+        call to retrain() -- e.g. from an admin endpoint or a one-off
+        offline job -- never as a side effect of a web request or app
+        boot on a memory-constrained host like Railway.
 
         Returns:
             True if models are ready.
@@ -75,9 +81,13 @@ class RecommendationService:
                 logger.info("Loaded processed data")
                 return self._load_or_train_models()
 
-            # Try running full pipeline
+            # Try running full pipeline (preprocessing only, no training)
             if self.preprocessor.run_full_pipeline():
-                return self._train_models()
+                logger.warning(
+                    "Processed data pipeline completed but no trained "
+                    "models found on disk. Skipping automatic training."
+                )
+                return False
 
             logger.warning("No data available for initialization")
             return False
@@ -87,10 +97,15 @@ class RecommendationService:
             return False
 
     def _load_or_train_models(self) -> bool:
-        """Try loading saved models, train if not available.
+        """Try loading saved models from disk.
+
+        Does NOT fall back to training if models aren't found -- training
+        here would run on every failed load (e.g. after every deploy or
+        restart) and can exhaust memory on constrained hosts. Use
+        retrain() explicitly to (re)train models.
 
         Returns:
-            True if models are ready.
+            True if models were loaded, False otherwise.
         """
         model_path = 'data/models'
 
@@ -118,7 +133,12 @@ class RecommendationService:
             logger.info("Models loaded from disk")
             return True
 
-        return self._train_models()
+        logger.warning(
+            "No trained models found on disk. "
+            "Skipping automatic training."
+        )
+        self._models_loaded = False
+        return False
 
     def _train_models(self) -> bool:
         """Train all models from scratch.
@@ -164,6 +184,11 @@ class RecommendationService:
 
     def retrain(self) -> dict:
         """Retrain all models with current data.
+
+        This is the ONLY path that should trigger training. Call it
+        explicitly (e.g. from an admin/maintenance endpoint or an
+        offline job), never automatically from initialize() or a
+        request-serving code path.
 
         Returns:
             Dictionary with training results.
