@@ -51,6 +51,7 @@ class RecommendationService:
         self.evaluator = ModelEvaluator()
         self.chart_generator = ChartGenerator()
         self._models_loaded: bool = False
+        self._init_attempted: bool = False
 
     @classmethod
     def get_instance(cls) -> 'RecommendationService':
@@ -75,6 +76,16 @@ class RecommendationService:
         Returns:
             True if models are ready.
         """
+        if self._models_loaded:
+            return True
+
+        if self._init_attempted:
+            # Already tried and failed this process lifetime -- don't
+            # re-hit disk / re-run the pipeline on every request.
+            return False
+
+        self._init_attempted = True
+
         try:
             # Try loading processed data first
             if self.preprocessor.load_processed_data():
@@ -194,6 +205,10 @@ class RecommendationService:
             Dictionary with training results.
         """
         results = {'success': False, 'message': ''}
+
+        # Allow a fresh initialize() attempt after a retrain, whether it
+        # succeeds or fails below.
+        self._init_attempted = False
 
         try:
             if not self.preprocessor.run_full_pipeline():
