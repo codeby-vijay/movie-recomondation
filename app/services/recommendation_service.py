@@ -126,11 +126,8 @@ class RecommendationService:
 
             # Try running full pipeline (preprocessing only, no training)
             if self.preprocessor.run_full_pipeline():
-                logger.warning(
-                    "Processed data pipeline completed but no trained "
-                    "models found on disk. Skipping automatic training."
-                )
-                return False
+                logger.info("Ran full preprocessing pipeline")
+                return self._load_or_train_models()
 
             logger.warning("No data available for initialization")
             return False
