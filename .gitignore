@@ -11,8 +11,7 @@ env/
 # Environment Variables
 .env
 
-# Instance folder
-instance/
+
 
 # IDE
 .vscode/
@@ -39,7 +38,6 @@ data/processed/*.pkl
 app/static/images/charts/*.png
 
 # Database
-*.db
 *.sqlite
 
 # Distribution
